@@ -1,10 +1,10 @@
-## Physics-Informed Transformers for Wind Power Forecasting 🌬️⚡
+# Physics-Informed Transformers for Wind Power Forecasting 🌬️⚡
 
-### 📌 Project Overview
+## 📌 Project Overview
 
 This repository contains the implementation of a Physics-Informed Transformer for short-term wind power forecasting (24-hour horizon). Unlike standard deep learning models, this approach integrates domain knowledge (Betz's Law) directly into the feature engineering process and utilizes a custom Ramp Loss function to better detect critical power changes.
 
-Key Features
+### Key Features
 
 Physics-Guided Feature Engineering: Uses a Non-Linear Least Squares (NLLS) fitted power curve as a "virtual sensor" input.
 
@@ -14,7 +14,8 @@ Uncertainty Quantification: Implements Monte Carlo Dropout to provide confidence
 
 Benchmark: Outperforms standard LSTM baselines by ~19.2% in Mean Absolute Error (MAE).
 
-## 📂 Repository Structure
+### 📂 Repository Structure
+
 bash
 ```
 ├── data/               # Raw and processed datasets (Turbine_Data.csv)
@@ -29,17 +30,9 @@ bash
 ```
 
 
-## 🚀 Getting Started
+### 🚀 Getting Started
 
-Prerequisites
 
-Python 3.8+
-
-PyTorch
-
-Pandas, NumPy, Scikit-learn, Matplotlib
-
-Installation
 bash
 ```
 git clone [https://github.com/Thedarkiin/physics-informed-wind-transformer.git](https://github.com/Thedarkiin/physics-informed-wind-transformer.git)
@@ -48,17 +41,16 @@ pip install -r requirements.txt
 ```
 
 
-(Note: Create a requirements.txt with torch, pandas, numpy, scikit-learn, matplotlib if you haven't already.)
+### ⚙️ Usage
 
-## ⚙️ Usage
-
-1. Data Preparation
+ 1. Data Preparation
 
 Ensure Turbine_Data.csv is in the data/ directory. The WindEnergyDataset class handles cleaning (curtailment removal) and feature engineering automatically.
 
-2. Training
+ 2. Training
 
 Run the training script to train both the Transformer and the LSTM baseline:
+
 bash
 ```
 python src/train.py
@@ -69,13 +61,14 @@ This will:
 
 Train the models for 10 epochs.
 
-Save the best weights to checkpoints/.
+Save the best weights.
 
-Generate training loss curves in plots/.
+Generate training loss curves.
 
-3. Evaluation & Plotting
+### 3. Evaluation & Plotting
 
 To generate the benchmark plots and metrics:
+
 bash
 ```
 python src/evaluate.py
@@ -84,7 +77,7 @@ python src/evaluate.py
 
 (Assuming you have an evaluation script, or this logic is at the end of train.py)
 
-## 📊 Results
+### 📊 Results
 
 Performance Metrics
 
@@ -101,7 +94,7 @@ The Transformer (Red) anticipates sudden drops in power much better than the LST
 2. Uncertainty Quantification
 Monte Carlo Dropout provides a 95% confidence interval (Red Band), showing higher uncertainty during volatile regimes.
 
-## 🧠 Methodology Highlights
+### 🧠 Methodology Highlights
 
 Physics-Informed Input
 
@@ -119,6 +112,6 @@ $$ \mathcal{L} = \text{MSE} + \lambda \cdot \frac{1}{N} \sum |\nabla y_{true} - 
 
 This forces the model to match the slope of the power signal, not just the value.
 
-## 👥 Author
+### 👥 Author
 
 ASERMOUH YASSIN - Data Science
