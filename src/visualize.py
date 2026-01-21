@@ -61,6 +61,12 @@ def visualize_results():
         
     except Exception as e:
         print(f"!! Could not generate forecast plot: {e}")
+def plot_error_by_horizon(y_true, y_pred):
+    # Calculate absolute error for every single point
+    errors = np.abs(y_true - y_pred)
+    
+    # Average error for each timestep (0 to 143)
+    # y_true shape is (num_samples, 144)
 
 if __name__ == "__main__":
     visualize_results()
