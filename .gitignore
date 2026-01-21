@@ -1,0 +1,31 @@
+# --- Python Garbage ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+
+# --- IDE Settings (VS Code / PyCharm) ---
+.vscode/
+.idea/
+*.swp
+
+# --- LaTeX Build Junk (Keep the .tex and .pdf, ignore the logs) ---
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+
+# --- Data (Optional: Uncomment if data is too big for GitHub) ---
+# data/*.csv
+
+# --- Generated Plots (Optional: Keep them if you want them on GitHub) ---
+# *.png
