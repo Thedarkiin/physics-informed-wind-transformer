@@ -1,117 +1,108 @@
-# Physics-Informed Transformers for Wind Power Forecasting 🌬️⚡
+# 🌬️ Prévision Éolienne Hybride : Transformer Physics-Informed
 
-## 📌 Project Overview
+![Python](https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-orange?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Research_Prototype-purple?style=flat-square)
 
-This repository contains the implementation of a Physics-Informed Transformer for short-term wind power forecasting (24-hour horizon). Unlike standard deep learning models, this approach integrates domain knowledge (Betz's Law) directly into the feature engineering process and utilizes a custom Ramp Loss function to better detect critical power changes.
+> **Résumé Exécutif** : Ce projet implémente une architecture **Transformer** novatrice pour la prévision de production éolienne à court terme (24h). Il se distingue par une approche **hybride (PIML - Physics-Informed Machine Learning)** qui intègre explicitement les lois aérodynamiques (Loi de Betz) et une fonction de coût spécialisée (**Ramp Loss**) pour anticiper les variations brutales de puissance.
 
-### Key Features
+---
 
-Physics-Guided Feature Engineering: Uses a Non-Linear Least Squares (NLLS) fitted power curve as a "virtual sensor" input.
+## 🎯 Fonctionnalités Clés
 
-Custom Ramp Loss: A hybrid loss function (MSE + Derivative Penalty) to minimize lag during sudden power ramps.
+* **Architecture Transformer :** Mécanisme de *Self-Attention* capturant les dépendances temporelles longues (+19.2% de gain MAE vs LSTM).
+* **Physics-Guided Feature Engineering :** Injection d'une courbe de puissance théorique ($P_{theo}$) calculée par régression logistique (NLLS).
+* **Ramp Loss ($\mathcal{L}_{ramp}$) :** Fonction de perte hybride pénalisant l'erreur de dérivée pour la détection de rampes.
+* **Quantification d'Incertitude :** Intervalles de confiance à 95% via *Monte Carlo Dropout*.
 
-Uncertainty Quantification: Implements Monte Carlo Dropout to provide confidence intervals for predictions.
+---
 
-Benchmark: Outperforms standard LSTM baselines by ~19.2% in Mean Absolute Error (MAE).
+## 📊 1. Analyse Exploratoire des Données (EDA)
 
-### 📂 Repository Structure
+Avant toute modélisation, une analyse approfondie des données SCADA a permis de comprendre la dynamique du site.
 
-bash
-```
-├── data/               # Raw and processed datasets (Turbine_Data.csv)
-├── src/                # Source code
-│   ├── dataset.py      # Custom PyTorch Dataset with physics filtering
-│   ├── model.py        # Transformer architecture definition
-│   ├── train.py        # Training loop with Ramp Loss
-│   └── utils.py        # Helper functions (metrics, plotting)
-├── plots/              # Generated figures (Wind Rose, Benchmarks, Loss Curves)
-├── checkpoints/        # Saved model weights (.pth)
-└── README.md           # Project documentation
-```
+### Distribution et Corrélations
+La matrice de corrélation confirme la relation physique forte entre la vitesse du vent et la puissance ($r=0.93$), tandis que la rose des vents révèle les directions dominantes du flux.
 
+| Rose des Vents | Matrice de Corrélation |
+| :---: | :---: |
+| ![Rose des Vents](plot_wind_rose.png) | ![Matrice de Corrélation](plot_correlation.png) |
+| *Direction dominante Nord-Est* | *Forte dépendance $P \propto v^3$* |
 
-### 🚀 Getting Started
+---
 
+## 🧪 2. Méthodologie "Physics-Informed"
 
-bash
-```
-git clone [https://github.com/Thedarkiin/physics-informed-wind-transformer.git](https://github.com/Thedarkiin/physics-informed-wind-transformer.git)
-cd physics-informed-wind-transformer
+### Le "Capteur Virtuel" (NLLS)
+Plutôt que de laisser le modèle apprendre la relation Vent/Puissance à partir de zéro (ce qui nécessite énormément de données), nous pré-calculons une courbe théorique idéale. Nous utilisons une régression logistique généralisée (Non-Linear Least Squares) ajustée sur les données filtrées.
+
+$$P_{theo}(v) = \frac{P_{max}}{1 + e^{-k(v - v_{center})}}$$
+
+![Courbe de Puissance Physique](plot_power_curve.png)
+> **Figure 1** : La courbe rouge ($P_{theo}$) agit comme un "tuteur" pour le réseau de neurones, filtrant le bruit stochastique des données brutes (nuage noir).
+
+---
+
+## 📈 3. Dynamique d'Apprentissage
+
+Le comparatif ci-dessous montre la supériorité de la convergence du Transformer par rapport au LSTM. Alors que le LSTM tend à sur-apprendre (écart grandissant entre Train/Val), le Transformer maintient une généralisation robuste grâce au mécanisme d'attention.
+
+![Courbes d'apprentissage](loss_comparison.png)
+
+---
+
+## 🏆 4. Résultats et Performance
+
+Les modèles ont été évalués sur un jeu de test strictement isolé (10% des données finales).
+
+| Modèle | MAE (Normalisé) | MAE (Réel) | Gain vs Baseline |
+| :--- | :---: | :---: | :---: |
+| **Persistance** | 0.0312 | ~56 kW | - |
+| **LSTM** | 0.0229 | ~41 kW | +26.6% |
+| **Transformer (Ours)** | **0.0185** | **~33 kW** | **+40.7%** |
+
+### Benchmark Visuel (Transformer vs LSTM)
+Le graphique ci-dessous illustre un événement critique de "Rampe" (chute brutale de vent).
+![Benchmark Architecture](plot_benchmark.png)
+> **Observation** : Le Transformer (rouge) anticipe la chute avec une latence quasi-nulle, contrairement au LSTM (bleu) qui présente un retard de phase caractéristique ("Lag") de 20-30 minutes.
+
+### Exemple de Prévision sur 24h
+![Forecast Sample](plot_forecast.png)
+
+### Quantification de l'Incertitude
+Grâce au Monte Carlo Dropout (100 passes stochastiques), nous estimons la fiabilité de la prédiction.
+![Uncertainty Quantification](plot_uncertainty.png)
+> **Analyse** : La zone rouge représente l'intervalle de confiance à 95%. On note que l'incertitude augmente logiquement lors des transitions de régime (chute brutale vers le pas 130).
+
+---
+
+## 🔍 5. Interprétabilité (XAI)
+
+Pourquoi le modèle est-il performant ? Nous avons utilisé l'importance par permutation pour le savoir.
+
+### Importance des Features
+![Feature Importance](plot_importance.png)
+> **Validation Physique** : La variable `Theoretical_Curve` est la 2ème plus importante (26.8%). Cela prouve que le modèle s'appuie activement sur la loi physique injectée pour corriger ses prévisions.
+
+### Analyse des Résidus
+![Distribution des Erreurs](plot_residuals.png)
+La distribution quasi-gaussienne centrée en 0 indique que le modèle est non-biaisé (pas de sous-estimation ou surestimation systématique).
+
+---
+
+## ⚙️ Installation et Reproduction
+
+```bash
+# 1. Cloner le dépôt
+git clone [https://github.com/votre-username/wind-power-transformer.git](https://github.com/votre-username/wind-power-transformer.git)
+cd wind-power-transformer
+
+# 2. Installer les dépendances
 pip install -r requirements.txt
-```
 
+# 3. Lancer l'entraînement
+python src/train.py --epochs 10 --batch_size 32
 
-### ⚙️ Usage
-
- 1. Data Preparation
-
-Ensure Turbine_Data.csv is in the data/ directory. The WindEnergyDataset class handles cleaning (curtailment removal) and feature engineering automatically.
-
- 2. Training
-
-Run the training script to train both the Transformer and the LSTM baseline:
-
-bash
-```
-python src/train.py
-```
-
-
-This will:
-
-Train the models for 10 epochs.
-
-Save the best weights.
-
-Generate training loss curves.
-
-### 3. Evaluation & Plotting
-
-To generate the benchmark plots and metrics:
-
-bash
-```
-python src/evaluate.py
-```
-
-
-(Assuming you have an evaluation script, or this logic is at the end of train.py)
-
-### 📊 Results
-
-Performance Metrics
-
-| Model | MAE | RMSE | Improvement vs Baseline |
-| Persistence | 0.0312 | 0.0421 | - |
-| LSTM | 0.0229 | 0.0318 | +26.6% |
-| Physics-Transformer | 0.0185 | 0.0264 | +40.7% |
-
-Key Visualizations
-
-1. Benchmark on Ramp Events
-The Transformer (Red) anticipates sudden drops in power much better than the LSTM (Blue), which suffers from lag.
-
-2. Uncertainty Quantification
-Monte Carlo Dropout provides a 95% confidence interval (Red Band), showing higher uncertainty during volatile regimes.
-
-### 🧠 Methodology Highlights
-
-Physics-Informed Input
-
-We fit a theoretical power curve $P_{theo}(v)$ to the historical data using the logistic function:
-
-$$ P_{theo}(v) = \frac{1799.1}{1 + e^{-1.08(v - 6.95)}} $$
-
-This synthetic feature guides the neural network, acting as a physical prior.
-
-Ramp Loss Function
-
-To penalize "laggy" predictions, we use a custom loss:
-
-$$ \mathcal{L} = \text{MSE} + \lambda \cdot \frac{1}{N} \sum |\nabla y_{true} - \nabla y_{pred}| $$
-
-This forces the model to match the slope of the power signal, not just the value.
-
-### 👥 Author
-
-ASERMOUH YASSIN - Data Science
+# 4. Générer les graphiques d'analyse
+python src/explain.py
