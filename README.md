@@ -28,7 +28,7 @@ La matrice de corrélation confirme la relation physique forte entre la vitesse 
 | Rose des Vents | Matrice de Corrélation |
 | :---: | :---: |
 | ![Rose des Vents](plots/plot_wind_rose.png) | ![Matrice de Corrélation](plots/plot_correlation.png) |
-| *Direction dominante Nord-Est* | *Forte dépendance $P \propto v^3$* |
+| *Direction dominante Nord-Est* | *Forte dépendance $P \propto v^3$ * |
 
 ---
 
