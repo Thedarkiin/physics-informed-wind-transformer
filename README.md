@@ -27,7 +27,7 @@ La matrice de corrélation confirme la relation physique forte entre la vitesse 
 
 | Rose des Vents | Matrice de Corrélation |
 | :---: | :---: |
-| ![Rose des Vents](plot_wind_rose.png) | ![Matrice de Corrélation](plot_correlation.png) |
+| ![Rose des Vents](plots\plot_wind_rose.png) | ![Matrice de Corrélation](plots\plot_correlation.png) |
 | *Direction dominante Nord-Est* | *Forte dépendance $P \propto v^3$* |
 
 ---
@@ -39,7 +39,7 @@ Plutôt que de laisser le modèle apprendre la relation Vent/Puissance à partir
 
 $$P_{theo}(v) = \frac{P_{max}}{1 + e^{-k(v - v_{center})}}$$
 
-![Courbe de Puissance Physique](plot_power_curve.png)
+![Courbe de Puissance Physique](plots\plot_power_curve.png)
 > **Figure 1** : La courbe rouge ($P_{theo}$) agit comme un "tuteur" pour le réseau de neurones, filtrant le bruit stochastique des données brutes (nuage noir).
 
 ---
@@ -48,7 +48,7 @@ $$P_{theo}(v) = \frac{P_{max}}{1 + e^{-k(v - v_{center})}}$$
 
 Le comparatif ci-dessous montre la supériorité de la convergence du Transformer par rapport au LSTM. Alors que le LSTM tend à sur-apprendre (écart grandissant entre Train/Val), le Transformer maintient une généralisation robuste grâce au mécanisme d'attention.
 
-![Courbes d'apprentissage](loss_comparison.png)
+![Courbes d'apprentissage](plots\loss_comparison.png)
 
 ---
 
@@ -64,15 +64,15 @@ Les modèles ont été évalués sur un jeu de test strictement isolé (10% des 
 
 ### Benchmark Visuel (Transformer vs LSTM)
 Le graphique ci-dessous illustre un événement critique de "Rampe" (chute brutale de vent).
-![Benchmark Architecture](plot_benchmark.png)
+![Benchmark Architecture](plots\plot_benchmark.png)
 > **Observation** : Le Transformer (rouge) anticipe la chute avec une latence quasi-nulle, contrairement au LSTM (bleu) qui présente un retard de phase caractéristique ("Lag") de 20-30 minutes.
 
 ### Exemple de Prévision sur 24h
-![Forecast Sample](plot_forecast.png)
+![Forecast Sample](plots\plot_forecast.png)
 
 ### Quantification de l'Incertitude
 Grâce au Monte Carlo Dropout (100 passes stochastiques), nous estimons la fiabilité de la prédiction.
-![Uncertainty Quantification](plot_uncertainty.png)
+![Uncertainty Quantification](plots\plot_uncertainty.png)
 > **Analyse** : La zone rouge représente l'intervalle de confiance à 95%. On note que l'incertitude augmente logiquement lors des transitions de régime (chute brutale vers le pas 130).
 
 ---
@@ -82,27 +82,35 @@ Grâce au Monte Carlo Dropout (100 passes stochastiques), nous estimons la fiabi
 Pourquoi le modèle est-il performant ? Nous avons utilisé l'importance par permutation pour le savoir.
 
 ### Importance des Features
-![Feature Importance](plot_importance.png)
+![Feature Importance](plots\plot_importance.png)
 > **Validation Physique** : La variable `Theoretical_Curve` est la 2ème plus importante (26.8%). Cela prouve que le modèle s'appuie activement sur la loi physique injectée pour corriger ses prévisions.
 
 ### Analyse des Résidus
-![Distribution des Erreurs](plot_residuals.png)
+![Distribution des Erreurs](plots\plot_residuals.png)
 La distribution quasi-gaussienne centrée en 0 indique que le modèle est non-biaisé (pas de sous-estimation ou surestimation systématique).
 
 ---
 
 ## ⚙️ Installation et Reproduction
 
-```bash
 # 1. Cloner le dépôt
-git clone [https://github.com/votre-username/wind-power-transformer.git](https://github.com/votre-username/wind-power-transformer.git)
-cd wind-power-transformer
+```
+git clone [https://github.com/Thedarkiin/physics-informed-wind-transformer.git](https://github.com/Thedarkiin/physics-informed-wind-transformer.git)
+cd wind-turbine
 
+```
+---
 # 2. Installer les dépendances
+```
 pip install -r requirements.txt
-
+```
+---
 # 3. Lancer l'entraînement
+```
 python src/train.py --epochs 10 --batch_size 32
-
+```
+----
 # 4. Générer les graphiques d'analyse
+```
 python src/explain.py
+```
